@@ -1,2 +1,4 @@
-.vscode/
-!*.c
+*
+!.gitignore
+!leetcode/*.c
+
