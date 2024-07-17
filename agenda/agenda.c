@@ -4,8 +4,8 @@
 
 #define TAM_INT         sizeof( int )
 #define TAM_PONT        sizeof( void * )
-#define MAX_NOME        sizeof( char ) * 50
-
+#define MAX_NOME        sizeof( char ) * 51
+#define MAX_MAIL        sizeof( char ) * 26
 
 // typedef struct{
 //     char *nome;
@@ -22,12 +22,12 @@
 /*
 
 Nodo_contato vai possuir:
-    30 char (51 bytes) para o nome;
-    25 char (25 bytes) para o email;
+    51 char (51 bytes) para o nome;
+    26 char (26 bytes) para o email;
     1 unsigned short int (2 bytes) para a idade; 
     1 void *(8 bytes) para armazenar o próximo nodo;
     1 void *(8 bytes) para armazenar o nodo anterior;
-        total: 94 bytes por Nodo.
+        total: 95 bytes por Nodo.
 */
 
 // typedef struct{
@@ -50,13 +50,18 @@ void AdPessoa( );
 void RmPessoa( );
 void BuscaPessoa( );
 void ListTodos( );
-void LeString( );
+void LeString( void *posicao);
 void *CriaNodo( char *nome, char *email, int idade );
 
 //pBuffer[0]  = um inteiro que armazena a escolha do usuário (4 bytes) -> pBuffer +0 
 //pBuffer[1] = inteiro i, para usar em laços (4 bytes) -> pBuffer +4
-//pBuffer[2] = unsigned char, para ler a string de input (1 byte ) -> pBuffer + 8
-//pBuffer[3] = char *, guarda a string do usuário ( MAX_NOME ) -> pBuffer + 9
+//pBuffer[2] = inteiro contador de contatos (4 bytes) -> pBuffer +8
+//pBuffer[2] = unsigned char, para ler a string de input (1 byte ) -> pBuffer + 12
+//pBuffer[3] = char *, guarda a string do usuário ( MAX_NOME ) -> pBuffer + 13
+//pBuffer[4] = char *, guarda o email do contato ( MAX_MAIL ) -> pBuffer + 64
+//pBuffer[5] = short unsigned int idade , guarda a idade do contato (2 bytes) -> pBuffer + 90
+//CONTADOR DE CONTATOS
+//LER STRING VS LER NOME E LER EMAIL
 //pBuffer[X] = void *, aponta para o primeiro node na fila -> 
 //pBuffer[X+1] = void *, aponta para o último nodo na fila
 //pBuffer[x+2] = void *, ponteiro que vai servir como `temp` para manipular os nodos na fila
@@ -66,6 +71,7 @@ void *CriaNodo( char *nome, char *email, int idade );
 int main()
 {
     AlocaBuffer();
+    printf("%s", ((char *)pBuffer));
     //pHeap = calloc( 75, sizeof( char ) );//Tenho o primeiro Nodo
 
     // printf("%p\n", &pBuffer);
@@ -111,7 +117,7 @@ void Menu( )
 		printf("\t 4. Listar todos\n");
 		printf("\t 5. Sair\n");
 		printf("-- Digite sua escolha: ");
-		scanf("%d", &((int*)pBuffer)[0]);
+		scanf("%d", ((int*)pBuffer));
 	}
 	while ( ( ( int* )pBuffer)[0] <= 0 || ((int*)pBuffer)[0] > 5);
 	getchar();  
@@ -120,7 +126,7 @@ void Menu( )
 
 
 void AlocaBuffer( ){
-    pBuffer = calloc( 60, sizeof( char ) );
+    pBuffer = calloc( 150, sizeof( char ) );
     //*( ( void ** )( pBuffer + 8 ) ) = calloc( 75, sizeof( char ) ); 
     return;
 }
@@ -129,12 +135,16 @@ void AlocaBuffer( ){
 void AdPessoa( ){
 
     //char * nome = LeString( );
-    LeString( );
-    printf( "\n%s\n", ( ( char * )( pBuffer + 9 ) ) );
+    LeString( pBuffer + 13 );
+    printf( "\n%s\n", ( ( char * )( pBuffer + 13 ) ) );
     //free(nome);
     // char * email = LeString( );
+    LeString( pBuffer + 64 );
+    printf( "\n%s\n", ( ( char * )( pBuffer + 64 ) ) );
+
     // int idade;
-    // scanf( "%d", &idade );
+    scanf( "%d", ((int *)(pBuffer + 90)) );
+    printf("\n%d\n", *((int *)(pBuffer + 90)));
     
     // void *nodo = CriaNodo( nome, email, idade );
 
@@ -145,27 +155,34 @@ void AdPessoa( ){
     return;
 }
 
-void LeString( ){
+void LeString( void *posicao ){
     //char c;
     //char *nome = ( char * )calloc( 1, MAX_NOME);
     //*( ( char * )( pBuffer+9 ) ) = ( char * )calloc( 1, MAX_NOME);
     //int i = 0;
 
-    *( ( int * )pBuffer ) = 0; 
+    *( ( int * )( pBuffer + 4 ) ) = 0; 
 
-    *( ( char * )( pBuffer + 8 ) ) = getchar( );
+    *( ( char * )( pBuffer + 12 ) ) = getchar( );
 
     //printf( "\n--%c--\n", *( ( char * )( pBuffer + 8 ) ) );
     //printf( "\n--%d--\n", *( ( int * )( pBuffer ) ) );
+    //*((int *)pBuffer) = strlen(((char *)posicao)); //testa o tamanho da string a partir da posição recebida
+    if(posicao == (pBuffer + 13)){
+        *((int *)pBuffer) = MAX_NOME;
+    } else {
+        *((int *)pBuffer) = MAX_MAIL;
+    }
+    printf("%d", *((int *)pBuffer));
 
-    while( *( ( char * )( pBuffer + 8 ) ) != '\n' && *( ( int * )pBuffer ) < MAX_NOME ){
+    while( *( ( char * )( pBuffer + 12 ) ) != '\n' && *( ( int * )( pBuffer + 4 ) ) < *((int *)pBuffer) ){
         //nome[ i++ ] = c;
-        *( ( char * )( pBuffer + 9 + ( *( ( int * )pBuffer ) ) ) ) = *( ( char * )( pBuffer + 8 ) );
-        ( *( ( int * )pBuffer ) )++;
-        *( ( char * )( pBuffer + 8 ) ) = getchar( );
+        *( ( char * )( posicao + ( *( ( int * )( pBuffer + 4 ) ) ) ) ) = *( ( char * )( pBuffer + 12 ) );
+        ( *( ( int * )( pBuffer + 4 ) ) )++;
+        *( ( char * )( pBuffer + 12 ) ) = getchar( );
     }
     //nome[ i ] = '\0';
-    *( ( char * )( pBuffer + 9 + *( ( int * )pBuffer ) ) ) = '\0';
+    *( ( char * )( posicao + ( *( ( int * )(pBuffer + 4 ) ) ) ) )= '\0';
 
     return;
 }
