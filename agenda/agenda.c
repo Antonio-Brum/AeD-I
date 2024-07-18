@@ -51,27 +51,24 @@ void RmPessoa( );
 void BuscaPessoa( );
 void ListTodos( );
 void LeString( void *posicao);
-void *CriaNodo( char *nome, char *email, int idade );
+void CriaNodo(void *nome, void *email, void *idade);
 
 //pBuffer[0]  = um inteiro que armazena a escolha do usuário (4 bytes) -> pBuffer +0 
 //pBuffer[1] = inteiro i, para usar em laços (4 bytes) -> pBuffer +4
 //pBuffer[2] = inteiro contador de contatos (4 bytes) -> pBuffer +8
-//pBuffer[2] = unsigned char, para ler a string de input (1 byte ) -> pBuffer + 12
-//pBuffer[3] = char *, guarda a string do usuário ( MAX_NOME ) -> pBuffer + 13
-//pBuffer[4] = char *, guarda o email do contato ( MAX_MAIL ) -> pBuffer + 64
-//pBuffer[5] = short unsigned int idade , guarda a idade do contato (2 bytes) -> pBuffer + 90
-//CONTADOR DE CONTATOS
-//LER STRING VS LER NOME E LER EMAIL
+//pBuffer[3] = unsigned char, para ler a string de input (1 byte ) -> pBuffer + 12
+//pBuffer[4] = char *, guarda a string do usuário ( MAX_NOME ) -> pBuffer + 13
+//pBuffer[5] = char *, guarda o email do contato ( MAX_MAIL ) -> pBuffer + 64
+//pBuffer[6] = short unsigned int idade , guarda a idade do contato (2 bytes) -> pBuffer + 90
+//pBuffer[x+2] = void *, ponteiro que vai servir como `temp` para manipular os nodos na fila (8 bytes) -> pBuffer + 92
 //pBuffer[X] = void *, aponta para o primeiro node na fila -> 
 //pBuffer[X+1] = void *, aponta para o último nodo na fila
-//pBuffer[x+2] = void *, ponteiro que vai servir como `temp` para manipular os nodos na fila
 //pBuffer[x+3] = void *, ponteiro para o primeiro nodo da lista temporária
 //pBuffer[x+4] = void *, ponteiro para o último nodo da lista temporária
 
 int main()
 {
     AlocaBuffer();
-    printf("%s", ((char *)pBuffer));
     //pHeap = calloc( 75, sizeof( char ) );//Tenho o primeiro Nodo
 
     // printf("%p\n", &pBuffer);
@@ -100,6 +97,7 @@ int main()
 		case 4:
 			break;
 		case 5:
+            free(*( ( void** )( pBuffer + 92 ) ));
             free(pBuffer);
 			return 0;
 		break;
@@ -144,10 +142,13 @@ void AdPessoa( ){
 
     // int idade;
     scanf( "%d", ((int *)(pBuffer + 90)) );
-    printf("\n%d\n", *((int *)(pBuffer + 90)));
-    
-    // void *nodo = CriaNodo( nome, email, idade );
+    printf("\n%d\n", *((short unsigned int *)(pBuffer + 90)));
 
+    //void *nodo = CriaNodo( nome, email, idade );
+    CriaNodo( pBuffer + 13, pBuffer + 64, pBuffer + 90 );
+
+    printf("\n%s\n", *((char**)(pBuffer + 92)));
+    printf("\n%s\n", *((char**)(pBuffer + 92))+51);
     // Push( nodo );
     
     // printf("adicionei\n");
@@ -155,33 +156,36 @@ void AdPessoa( ){
     return;
 }
 
+void CriaNodo(void *nome, void *email, void *idade){
+    *( ( void** )( pBuffer + 92 ) ) = calloc( 75, sizeof ( char ) );
+    strcpy(*((char**)(pBuffer + 92)),nome);
+    strcpy(*((char**)(pBuffer + 92)) + 51, email);
+
+    return;
+}
+
+
+
+
 void LeString( void *posicao ){
-    //char c;
-    //char *nome = ( char * )calloc( 1, MAX_NOME);
-    //*( ( char * )( pBuffer+9 ) ) = ( char * )calloc( 1, MAX_NOME);
-    //int i = 0;
 
     *( ( int * )( pBuffer + 4 ) ) = 0; 
 
     *( ( char * )( pBuffer + 12 ) ) = getchar( );
 
-    //printf( "\n--%c--\n", *( ( char * )( pBuffer + 8 ) ) );
-    //printf( "\n--%d--\n", *( ( int * )( pBuffer ) ) );
-    //*((int *)pBuffer) = strlen(((char *)posicao)); //testa o tamanho da string a partir da posição recebida
-    if(posicao == (pBuffer + 13)){
-        *((int *)pBuffer) = MAX_NOME;
+     if( posicao == ( pBuffer + 13 ) ){
+        *( ( int * )pBuffer ) = MAX_NOME;
     } else {
-        *((int *)pBuffer) = MAX_MAIL;
+        *( ( int * )pBuffer ) = MAX_MAIL;
     }
-    printf("%d", *((int *)pBuffer));
 
-    while( *( ( char * )( pBuffer + 12 ) ) != '\n' && *( ( int * )( pBuffer + 4 ) ) < *((int *)pBuffer) ){
-        //nome[ i++ ] = c;
+    while( *( ( char * )( pBuffer + 12 ) ) != '\n' && *( ( int * )( pBuffer + 4 ) ) < *( ( int * )pBuffer ) ){
+       
         *( ( char * )( posicao + ( *( ( int * )( pBuffer + 4 ) ) ) ) ) = *( ( char * )( pBuffer + 12 ) );
         ( *( ( int * )( pBuffer + 4 ) ) )++;
         *( ( char * )( pBuffer + 12 ) ) = getchar( );
-    }
-    //nome[ i ] = '\0';
+
+    }//while
     *( ( char * )( posicao + ( *( ( int * )(pBuffer + 4 ) ) ) ) )= '\0';
 
     return;
