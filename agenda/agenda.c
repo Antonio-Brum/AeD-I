@@ -44,6 +44,7 @@ void *pHeap = NULL;
 void AlocaBuffer( );
 void Menu( );
 void Push( void* nodo ); //vai adicionar um nodo a partir do final da fila
+void BuscaPush( void* nodo, void* pAux, void* pLast, void* pFirst);
 void *Pop( ); //vai retornar o nodo do inícido da fila
 void Empty( );
 void AdPessoa( );
@@ -62,7 +63,8 @@ void CriaNodo(void *nome, void *email, void *idade);
 //pBuffer[6] = short unsigned int idade , guarda a idade do contato (2 bytes) -> pBuffer + 90
 //pBuffer[x+2] = void *, ponteiro que vai servir como `temp` para manipular os nodos na fila (8 bytes) -> pBuffer + 92
 //pBuffer[X] = void *, aponta para o primeiro node na fila -> pBuffer + 100
-//pBuffer[X+1] = void *, aponta para o último nodo na fila
+//pBuffer[X+1] = void *, aponta para o último nodo na fila -> pBuffer + 108
+//pBuffer[não sei mais] = void *, ponteiro auxiliar pra fazer a busca -> pBuffer + 116
 //pBuffer[x+3] = void *, ponteiro para o primeiro nodo da lista temporária
 //pBuffer[x+4] = void *, ponteiro para o último nodo da lista temporária
 
@@ -125,7 +127,8 @@ void Menu( )
 
 void AlocaBuffer( ){
     pBuffer = calloc( 150, sizeof( char ) );
-    //*( ( void ** )( pBuffer + 8 ) ) = calloc( 75, sizeof( char ) ); 
+    *(char**)(pBuffer + 100) = NULL;
+    *(char**)(pBuffer + 108) = NULL;
     return;
 }
 
@@ -153,17 +156,54 @@ void AdPessoa( ){
     
     // Push( nodo );
     Push(pBuffer + 92);
-    // printf("adicionei\n");
+
+    //printf("\n%s\n", *((char**)(pBuffer + 108)));
+    return;
+}
+
+void Push(void* nodo){
+    if(*((char**)(pBuffer + 100)) == NULL){
+        *((char**)(pBuffer + 100)) = *(char**)nodo;
+        *((char**)(pBuffer + 108)) = *(char**)nodo;
+        return;
+    }
+//MEU NODO É UMA STRINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+//79 = pnext
+//87 = pPrevious
+    BuscaPush(nodo, pBuffer + 116, pBuffer + 108, pBuffer + 100);
+    *(void**)(*((char **)(pBuffer + 108)) + 79) = *(char**)nodo;//nodo.pPrevious.pNext = nodo -- ou seja, faço o pnext do anterior apontar pra esse
+    *(void**)((*((char**)nodo)) + 79) = NULL;//pNext = NULL
+    *(void**)((*(char**)nodo) + 87) = *((char**)(pBuffer + 108)); //pPrevious = pLast
+    *((char**)(pBuffer + 108)) = *(char**)nodo;//pLast = nodo
+
+    return;
+}
+
+
+void BuscaPush( void* nodo, void* pAux, void* pLast, void* pFirst){
+    *(void**)pAux = *(void**)pLast;
+
+    int sexo = strcmp((*((char**)nodo)), (*((char **)pAux)));
+
+    if(*(void**)((*((char**)pAux)) + 87) == NULL && sexo < 0){//insere no início
+        *(void**)((*((char**)nodo)) + 79) = *(void**)pAux;
+        *(void**)((*((char**)pAux)) + 87) = *(void**)nodo;
+        *(void**)pFirst = *(void**)nodo;
+    } else { //insere no final
+        *(void**)((*((char**)pAux)) + 79) = *(void**)nodo;
+        *(void**)((*(char**)nodo) + 87) = *(void**)pAux;
+        *(void**)pLast = *(void**)nodo;
+    }
+
+    // for(int i = 0; sexo < 0 && *(void**)((*((char**)pAux)) + 87) != NULL; i++){
+    //     *(void**)pAux = *(void**)(*((char**)pAux)) + 87; //pAu = pAux.prev
+    //     sexo = strcmp((*((char**)nodo)), (*((char **)pAux)));
+    // }
 
     printf("\n%s\n", *((char**)(pBuffer + 100)));
     return;
 }
 
-void Push(void* nodo){
-    *(char**)(pBuffer + 100) = *(char**)nodo;
-
-    return;
-}
 
 void CriaNodo(void *nome, void *email, void *idade){
     *( ( void** )( pBuffer + 92 ) ) = calloc( 1, MAX_NOME + MAX_MAIL + sizeof(unsigned short int) + sizeof(void *) + sizeof(void *) );
