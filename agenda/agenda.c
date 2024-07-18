@@ -150,9 +150,9 @@ void AdPessoa( ){
     //void *nodo = CriaNodo( nome, email, idade );
     CriaNodo( pBuffer + 13, pBuffer + 64, pBuffer + 90 );
 
-    printf("\n%s\n", *((char**)(pBuffer + 92)));
-    printf("\n%s\n", *((char**)(pBuffer + 92))+51);
-    printf("\n%hu\n", *(unsigned short int *)( *( ( char** )( pBuffer + 92 ) ) + 77 ));
+    // printf("\n%s\n", *((char**)(pBuffer + 92)));
+    // printf("\n%s\n", *((char**)(pBuffer + 92))+51);
+    // printf("\n%hu\n", *(unsigned short int *)( *( ( char** )( pBuffer + 92 ) ) + 77 ));
     
     // Push( nodo );
     Push(pBuffer + 92);
@@ -171,10 +171,13 @@ void Push(void* nodo){
 //79 = pnext
 //87 = pPrevious
     BuscaPush(nodo, pBuffer + 116, pBuffer + 108, pBuffer + 100);
-    *(void**)(*((char **)(pBuffer + 108)) + 79) = *(char**)nodo;//nodo.pPrevious.pNext = nodo -- ou seja, faço o pnext do anterior apontar pra esse
-    *(void**)((*((char**)nodo)) + 79) = NULL;//pNext = NULL
-    *(void**)((*(char**)nodo) + 87) = *((char**)(pBuffer + 108)); //pPrevious = pLast
-    *((char**)(pBuffer + 108)) = *(char**)nodo;//pLast = nodo
+    printf("\nLast: %s\n", *((char**)(pBuffer + 108)));
+    printf("\nFirst: %s\n", *((char**)(pBuffer + 100)));
+
+    // *(void**)(*((char **)(pBuffer + 108)) + 79) = *(char**)nodo;//nodo.pPrevious.pNext = nodo -- ou seja, faço o pnext do anterior apontar pra esse
+    // *(void**)((*((char**)nodo)) + 79) = NULL;//pNext = NULL
+    // *(void**)((*(char**)nodo) + 87) = *((char**)(pBuffer + 108)); //pPrevious = pLast
+    // *((char**)(pBuffer + 108)) = *(char**)nodo;//pLast = nodo
 
     return;
 }
@@ -189,18 +192,42 @@ void BuscaPush( void* nodo, void* pAux, void* pLast, void* pFirst){
         *(void**)((*((char**)nodo)) + 79) = *(void**)pAux;
         *(void**)((*((char**)pAux)) + 87) = *(void**)nodo;
         *(void**)pFirst = *(void**)nodo;
-    } else { //insere no final
+        printf("INseri no inicio");
+
+        return;
+    } else if (*(void**)((*((char**)pAux)) + 87) == NULL && sexo >= 0){ //insere no final
         *(void**)((*((char**)pAux)) + 79) = *(void**)nodo;
         *(void**)((*(char**)nodo) + 87) = *(void**)pAux;
         *(void**)pLast = *(void**)nodo;
+        printf("INseri no final");
+        return;
     }
 
-    // for(int i = 0; sexo < 0 && *(void**)((*((char**)pAux)) + 87) != NULL; i++){
-    //     *(void**)pAux = *(void**)(*((char**)pAux)) + 87; //pAu = pAux.prev
-    //     sexo = strcmp((*((char**)nodo)), (*((char **)pAux)));
-    // }
+    for(int i = 0; sexo < 0 && *(void**)((*((char**)pAux)) + 87) != NULL; i++){
+        printf("\nONDE EStá auxiliar: %s\n",(*((char **)pAux)) );
+        *(void**)pAux = *(void**)((*((char**)pAux)) + 87); //pAu = pAux.prev
+        sexo = strcmp((*((char**)nodo)), (*((char **)pAux)));
+    }
 
-    printf("\n%s\n", *((char**)(pBuffer + 100)));
+    if(*(void**)((*((char**)pAux)) + 87) == NULL){
+        *(void**)((*((char**)nodo)) + 79) = *(void**)pAux;
+        *(void**)((*((char**)pAux)) + 87) = *(void**)nodo;
+        *(void**)pFirst = *(void**)nodo;
+        return;
+    } else if(*(void**)((*((char**)pAux)) + 79) == NULL) {
+        *(void**)((*((char**)pAux)) + 79) = *(void**)nodo;
+        *(void**)((*(char**)nodo) + 87) = *(void**)pAux;
+        *(void**)pLast = *(void**)nodo;
+        return;
+    } else {
+        *(void**)((*((char**)nodo)) + 79) = *(void**)((*((char**)pAux)) + 79);
+        *(void**)((*(char**)nodo) + 87) = *(void**)pAux;
+        *(void**)((*((char**)pAux)) + 79) = *(void**)nodo;
+        *(void**)((*(void**)((*((char**)nodo)) + 79)) + 87) = *(void**)nodo;
+        return;
+    }
+
+    
     return;
 }
 
