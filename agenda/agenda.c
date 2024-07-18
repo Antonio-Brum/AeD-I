@@ -61,7 +61,7 @@ void CriaNodo(void *nome, void *email, void *idade);
 //pBuffer[5] = char *, guarda o email do contato ( MAX_MAIL ) -> pBuffer + 64
 //pBuffer[6] = short unsigned int idade , guarda a idade do contato (2 bytes) -> pBuffer + 90
 //pBuffer[x+2] = void *, ponteiro que vai servir como `temp` para manipular os nodos na fila (8 bytes) -> pBuffer + 92
-//pBuffer[X] = void *, aponta para o primeiro node na fila -> 
+//pBuffer[X] = void *, aponta para o primeiro node na fila -> pBuffer + 100
 //pBuffer[X+1] = void *, aponta para o último nodo na fila
 //pBuffer[x+3] = void *, ponteiro para o primeiro nodo da lista temporária
 //pBuffer[x+4] = void *, ponteiro para o último nodo da lista temporária
@@ -134,33 +134,44 @@ void AdPessoa( ){
 
     //char * nome = LeString( );
     LeString( pBuffer + 13 );
-    printf( "\n%s\n", ( ( char * )( pBuffer + 13 ) ) );
+    //printf( "\n%s\n", ( ( char * )( pBuffer + 13 ) ) );
     //free(nome);
     // char * email = LeString( );
     LeString( pBuffer + 64 );
-    printf( "\n%s\n", ( ( char * )( pBuffer + 64 ) ) );
+    //printf( "\n%s\n", ( ( char * )( pBuffer + 64 ) ) );
 
     // int idade;
-    scanf( "%d", ((int *)(pBuffer + 90)) );
-    printf("\n%d\n", *((short unsigned int *)(pBuffer + 90)));
+    scanf( "%hu", ((unsigned short int *)(pBuffer + 90)) );
+    //printf("\n%hu\n", *((unsigned short int *)(pBuffer + 90)));
 
     //void *nodo = CriaNodo( nome, email, idade );
     CriaNodo( pBuffer + 13, pBuffer + 64, pBuffer + 90 );
 
     printf("\n%s\n", *((char**)(pBuffer + 92)));
     printf("\n%s\n", *((char**)(pBuffer + 92))+51);
-    // Push( nodo );
+    printf("\n%hu\n", *(unsigned short int *)( *( ( char** )( pBuffer + 92 ) ) + 77 ));
     
+    // Push( nodo );
+    Push(pBuffer + 92);
     // printf("adicionei\n");
+
+    printf("\n%s\n", *((char**)(pBuffer + 100)));
+    return;
+}
+
+void Push(void* nodo){
+    *(char**)(pBuffer + 100) = *(char**)nodo;
 
     return;
 }
 
 void CriaNodo(void *nome, void *email, void *idade){
-    *( ( void** )( pBuffer + 92 ) ) = calloc( 75, sizeof ( char ) );
+    *( ( void** )( pBuffer + 92 ) ) = calloc( 1, MAX_NOME + MAX_MAIL + sizeof(unsigned short int) + sizeof(void *) + sizeof(void *) );
     strcpy(*((char**)(pBuffer + 92)),nome);
     strcpy(*((char**)(pBuffer + 92)) + 51, email);
-
+    *(unsigned short int *)( *( ( char** )( pBuffer + 92 ) ) + 77 ) = *((unsigned short int *)idade); //Acessar o nodo como uma string, somar os bytes que preciso e aí sim dar o cast
+    *(void**)(*((char **)(pBuffer + 92)) + 79) = NULL;//pNext
+    *(void**)(*((char **)(pBuffer + 92)) + 87) = NULL;//pPrevious
     return;
 }
 
