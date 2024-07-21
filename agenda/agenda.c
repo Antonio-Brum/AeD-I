@@ -42,9 +42,9 @@ void *pBuffer = NULL;
 
 void AlocaBuffer ( );
 int *Menu ( );
-void Push ( void* nodo, void* pLast, void* pFirst ); //vai adicionar um nodo a partir do final da fila
+void Push ( void** nodo, void** pAux, void** pLast, void** pFirst ); //vai adicionar um nodo a partir do final da fila
 //Push vai receber o nodo a ser adicionado, o ponteiro auxiliar usado para percorrer a lista, e em qual das stacks ele vai ser adicionado: Na principal ou na temporária
-void BuscaPush ( void* nodo, void* pAux, void* pLast, void* pFirst );
+//void BuscaPush ( void* nodo, void* pAux, void* pLast, void* pFirst );
 void Pop ( void* pFirst ); //vai retornar o nodo do inícido da fila
 void Empty ( );
 void AdPessoa ( );
@@ -52,7 +52,7 @@ void RmPessoa ( );
 void BuscaPessoa ( );
 void ListTodos ( );
 void LeString ( char *string );
-void CriaNodo ( void *nome, void *email, void *idade );
+void CriaNodo ( char *nome, char *email, unsigned short int *idade );
 
 //pBuffer[0]  = um inteiro que armazena a escolha do usuário  (4 bytes) -> pBuffer +0 
 //pBuffer[1] = inteiro i, para usar em laços  (4 bytes) -> pBuffer +4
@@ -71,9 +71,13 @@ void CriaNodo ( void *nome, void *email, void *idade );
 int main ( )
 {
     //AlocaBuffer ( );
-    pBuffer = calloc(1, sizeof(int) + sizeof(int));//alocando buffer para escolha e contadorContatos
+    pBuffer = calloc(1, sizeof(int) + sizeof(int) + sizeof(void*) + sizeof(void *));//alocando buffer para escolha, contadorContatos, pFirst e pLast
+    //int tamanho = sizeof(int) + sizeof(int) + sizeof(void*) + sizeof(void *);
+    //printf("%d", tamanho);
     //int *contadorContatos = pBuffer + sizeof( int );
     *( ( int* ) (pBuffer + sizeof( int ) ) ) = 0;
+    *((void**)(pBuffer + sizeof(int) * 2)) = NULL; //pFirst = NULL
+    *((void**)(pBuffer + sizeof(int) * 2 + sizeof(void*))) = NULL; // pLast = NULL
 	for  ( ;; ) {
         int *escolha = Menu ( );
 		switch  (*escolha) {
@@ -81,7 +85,7 @@ int main ( )
             AdPessoa ( );
 			break;
 		case 2:
-            RmPessoa ( );
+            //RmPessoa ( );
 			break;
 		case 3:
 			break;
@@ -119,43 +123,43 @@ int *Menu ( )
 
 
 
-void RmPessoa ( ){
-    LeString ( pBuffer + 13 ); //qual nome vai sair?
-    Pop ( pBuffer + 100 ); //Pega o primeiro nodo da fila principal
-    printf ("\nNo pFirst: %s\n", * ( char** )( pBuffer + 100 ) );
-    printf ("\nNo 'nodo': %s\n", * ( char** )( pBuffer + 92 ) );
+// void RmPessoa ( ){
+//     LeString ( pBuffer + 13 ); //qual nome vai sair?
+//     Pop ( pBuffer + 100 ); //Pega o primeiro nodo da fila principal
+//     printf ("\nNo pFirst: %s\n", * ( char** )( pBuffer + 100 ) );
+//     printf ("\nNo 'nodo': %s\n", * ( char** )( pBuffer + 92 ) );
 
-    for((*(int*)(pBuffer + 4)) = 0;(*(int*)(pBuffer + 4)) < (*(int*)(pBuffer + 8)); (*(int*)(pBuffer + 4))++){
-            if (( strcmp ( ( char * )(pBuffer + 13), (* ( char** )(pBuffer + 92) ) ) ) == 0){
-                free ( * (  ( void** ) ( pBuffer + 92 ) ) );
-                * ( void** )( pBuffer + 92 ) = *(void**)(pBuffer + 100);
-                printf("Removi!\n");
-            }
+//     for((*(int*)(pBuffer + 4)) = 0;(*(int*)(pBuffer + 4)) < (*(int*)(pBuffer + 8)); (*(int*)(pBuffer + 4))++){
+//             if (( strcmp ( ( char * )(pBuffer + 13), (* ( char** )(pBuffer + 92) ) ) ) == 0){
+//                 free ( * (  ( void** ) ( pBuffer + 92 ) ) );
+//                 * ( void** )( pBuffer + 92 ) = *(void**)(pBuffer + 100);
+//                 printf("Removi!\n");
+//             }
 
-        if(* ( void** )( pBuffer + 92 ) != NULL){
-            Push ( pBuffer + 92, pBuffer + 132, pBuffer + 124); //põe na fila auxiliar
-            Pop ( pBuffer + 100 );
-            printf("não removi\n");
-        }
-    }
-    *(void**)(pBuffer + 100) = *(void**)(pBuffer + 124);
-    *(void**)(pBuffer + 108) = *(void**)(pBuffer + 132);
-    *(void**)(pBuffer + 124) = NULL;
-    *(void**)(pBuffer + 132) = NULL;
-    return;
+//         if(* ( void** )( pBuffer + 92 ) != NULL){
+//             Push ( pBuffer + 92, pBuffer + 132, pBuffer + 124); //põe na fila auxiliar
+//             Pop ( pBuffer + 100 );
+//             printf("não removi\n");
+//         }
+//     }
+//     *(void**)(pBuffer + 100) = *(void**)(pBuffer + 124);
+//     *(void**)(pBuffer + 108) = *(void**)(pBuffer + 132);
+//     *(void**)(pBuffer + 124) = NULL;
+//     *(void**)(pBuffer + 132) = NULL;
+//     return;
 
-    // if ( ( strcmp ( ( char * )(pBuffer + 13), * ( char** )(pBuffer + 92) ) ) == 0){
-    //     free ( * (  ( void** ) ( pBuffer + 92 ) ) );
-    //     * ( void** )( pBuffer + 92 ) = NULL;
-    //     printf("É igual, doidão");
+//     // if ( ( strcmp ( ( char * )(pBuffer + 13), * ( char** )(pBuffer + 92) ) ) == 0){
+//     //     free ( * (  ( void** ) ( pBuffer + 92 ) ) );
+//     //     * ( void** )( pBuffer + 92 ) = NULL;
+//     //     printf("É igual, doidão");
 
-    //     return;
-    // } else {
-    //     Push ( pBuffer + 92, pBuffer + 124, pBuffer + 132); //põe na fila auxiliar
-    // }
+//     //     return;
+//     // } else {
+//     //     Push ( pBuffer + 92, pBuffer + 124, pBuffer + 132); //põe na fila auxiliar
+//     // }
 
-    // printf("Não é igual");
-}
+//     // printf("Não é igual");
+// }
 
 
 
@@ -180,37 +184,62 @@ void Pop ( void* pFirst ){ //vai retornar o nodo do início da fila
     return;
 }
 
-void AdPessoa ( ){
-    pBuffer = realloc (pBuffer, sizeof ( int ) + sizeof ( int ) + MAX_NOME + MAX_MAIL + sizeof ( int ) ); //REalocando para o nome, email e idade
+//escolha, contadorContatos, pFirst, pLast, nodo, pAux, nome, email, idade 
+void AdPessoa ( ){ 
+    pBuffer = realloc (pBuffer, sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL + sizeof (unsigned short int ) ); //REalocando para o nodo, pAux, nome, email, idade
 
     int *contadorContatos = pBuffer + sizeof( int );
     (*contadorContatos)++;
-    char *nome = pBuffer + sizeof ( int ) * 2; //nome logo depois de `escolha` e de `contadorContatos`
+    char *nome = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *); //nome logo depois de `escolha` e de `contadorContatos`
     //(*((int*)(pBuffer + 8)))++;
 
     //LeString ( pBuffer + 13 );
     LeString ( nome );
+
     //contadorContatos = pBuffer + sizeof( int );
-    nome = pBuffer + sizeof ( int ) * 2; //nome logo depois de `escolha` e de `contadorContatos`
-    char *email = pBuffer + sizeof ( int ) * 2 + MAX_NOME;//email após `nome`
+    //nome = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *); //nome logo depois de `nodo` e `pAux`
+    char *email = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME;//email após `nome`
     //int *idade = pBuffer + sizeof ( int ) * 2 + MAX_NOME + MAX_MAIL;//idade após `email`
-    
-    printf("\n%s\n", nome);
-    
+        
     LeString ( email );
-    nome = pBuffer + sizeof ( int ) * 2; //nome logo depois de `escolha` e de `contadorContatos`
-    email = pBuffer + sizeof ( int ) * 2 + MAX_NOME;//email após `nome`
+    nome = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *); //nome logo depois de `nodo` e `pAux`
+    email = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME;//email após `nome`
 
-    printf("\n%s\n", email);
-    printf("\n%s\n", nome);
+    // printf("\n%s\n", email);
+    // printf("\n%s\n", nome);
 
+    unsigned short int *idade = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL;//idade após `email`
+
+    scanf("%hd", idade);
+    // printf("%hd", *idade);
 
     // scanf ( "%hu",  (  ( unsigned short int * ) ( pBuffer + 90 ) ) );
- 
-    // CriaNodo ( pBuffer + 13, pBuffer + 64, pBuffer + 90 );
+    
+    CriaNodo ( nome, email, idade );
+    //pBuffer = realloc(pBuffer, sizeof(int) + sizeof(int) + sizeof(void*) + sizeof(void *) + sizeof(void *)); //Dando free no espaço das strings e da idade 
 
-  
-    // Push ( pBuffer + 92, pBuffer + 108, pBuffer + 100 );
+    void **pFirst = pBuffer + sizeof(int) * 2;
+    void **pLast = pBuffer + sizeof(int) * 2 + sizeof(void*); 
+    void **nodo = pBuffer + sizeof(int) * 2 + sizeof(void*) * 2; 
+    void **pAux = pBuffer + sizeof(int) * 2 + sizeof(void*) * 2 + sizeof(void *);
+    printf("\n%s\n", *(char**)(nodo));
+    printf("\n%s\n", *((char**)(nodo)) + 51 );
+    printf("\n%hd\n", *(unsigned short int *)(*((char**)(nodo)) + 77) );
+
+
+    printf("Endereço do pBuffer: %p\n", pBuffer);
+    printf("Endereço apontado por pFirst: %p\n", pFirst);
+
+    printf("Endereço apontado por *pFirst (deve ser NULL): %p\n", *pFirst);
+    Push(nodo, pAux, pFirst, pLast);
+
+    printf("Acessado o nodo por pFirst:\nnome:%s\n", *(char**)pFirst);
+    printf("Acessando o pFirst->next (Deve ser NULL):%p\n", *(void**)(*((char **)(pFirst)) + 79));
+
+    printf("Acessado o nodo por pLast:\nnome:%s\n", *(char**)pLast);
+    printf("Acessando o pLast->next (Deve ser NULL):%p\n", *(void**)(*((char **)(pLast)) + 79));
+    // CriaNodo (pBuffer + 13, pBuffer + 64, pBuffer + 90);    
+    //Push ( pBuffer + 92, pBuffer + 108, pBuffer + 100 );
     // printf ( "\nLast: %s\n", * (  ( char** ) ( pBuffer + 108 ) ) );
     // printf ( "\nFirst: %s\n", * (  ( char** ) ( pBuffer + 100 ) ) );
   
@@ -218,13 +247,16 @@ void AdPessoa ( ){
 }
 
 
-void Push ( void* nodo, void* pLast, void* pFirst ){
+void Push ( void** nodo, void** pAux, void** pFirst, void** pLast ){
     // if (* ( (char**) (pBuffer + 100)) == NULL){
         // * ( (char**) (pBuffer + 100)) = * (char**)nodo;
         // * ( (char**) (pBuffer + 108)) = * (char**)nodo;
-    if ( * ( void** )pFirst == NULL ){
-        * ( void** )pFirst = * ( void** )nodo;
-        * ( void** )pLast = * ( void** )nodo;
+    printf("NO PUSH() - Endereço apontado por pFirst: %p\n", pFirst);
+    printf("Endereço apontado por *pFirst (deve ser NULL): %p\n", *pFirst);
+
+    if ( *pFirst == NULL ){
+        *pFirst = *nodo;
+        *pLast = *nodo;
         return;
     }
 //MEU NODO É UMA STRINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
@@ -232,51 +264,85 @@ void Push ( void* nodo, void* pLast, void* pFirst ){
 //87 = pPrevious
 
 //ideias: usar o contador de pessoas; usando o contador é possível separar 0, 1 e mais de 1 contatos; Fazer funções para inserir no início, no final e no meio pro código ficar menos poluído; tentar separar a função de busca também;
-    * ( void** )( pBuffer + 116 ) = * ( void** )pLast;
+    *pAux = *pLast;
+    //* ( void** )( pBuffer + 116 ) = * ( void** )pLast;
 
-    *( int * )pBuffer = strcmp (  ( * (  ( char** )nodo ) ),  ( * (  ( char ** )( pBuffer + 116 ) ) ) );
+   // *( int * )pBuffer = strcmp (  ( * (  ( char** )nodo ) ),  ( * (  ( char ** )( pBuffer + 116 ) ) ) );
 
-    if ( * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) == NULL && *( int * )pBuffer < 0 ){//insere no início
-        * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) = * ( void** )( pBuffer + 116 );
-        * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) = * ( void** )nodo;
-        * ( void** )pFirst = * ( void** )nodo;
-        printf ("INseri no inicio");
+    //if ( * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) == NULL && *( int * )pBuffer < 0 ){//insere no início
+        // * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) = * ( void** )( pBuffer + 116 );
+        // * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) = * ( void** )nodo;
+        // * ( void** )pFirst = * ( void** )nodo;
+    // } else if  ( * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) == NULL && *( int * )pBuffer >= 0 ){ //insere no final
+    //     * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) = * ( void** )nodo;
+    //     * ( void** ) (  ( * (char**)nodo ) + 87 ) = * ( void** )( pBuffer + 116 );
+    //     * ( void** )pLast = * ( void** )nodo;
+    //     printf ("Inseri no final");
+    //     return;
+    // }//if
+    if(*(void**)((*pAux) + 87) == NULL && strcmp((*(char**)nodo), (*(char**)pAux)) < 0){
+        *(void**)((*(char**)nodo) + 79) = *pAux;
+        *(void**)((*(char**)pAux) + 87) = *nodo;
+        *pFirst = *nodo;
+        printf ("Inseri no inicio\n");
 
         return;
-    } else if  ( * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) == NULL && *( int * )pBuffer >= 0 ){ //insere no final
-        * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) = * ( void** )nodo;
-        * ( void** ) (  ( * (char**)nodo ) + 87 ) = * ( void** )( pBuffer + 116 );
-        * ( void** )pLast = * ( void** )nodo;
-        printf ("INseri no final");
+    } else if (*(void**)((*pAux) + 87) == NULL && strcmp((*(char**)nodo), (*(char**)pAux)) >= 0){
+        *(void**)((*(char**)pAux) + 79) = *nodo;
+        *(void**)((*(char**)nodo) + 87) = *pAux;
+        *pLast = *nodo;
+        printf ("Inseri no final\n");
         return;
     }//if
 
-    while( *( int * )pBuffer < 0 && * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) != NULL ){
-        printf ("\nONDE EStá auxiliar: %s\n", (* ( (char **)( pBuffer + 116 ))) );
-        * ( void** )( pBuffer + 116 ) = * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ); //pAu = pAux.prev
-        *( int * )pBuffer = strcmp (  ( * (  ( char** )nodo ) ),  ( * (  ( char ** )( pBuffer + 116 ) ) ) ); 
-    }//while
-
-    if(*( int * )pBuffer < 0){
-        * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) = * ( void** )( pBuffer + 116 );//nodo.next = pAux
-        * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) = * ( void** )nodo;//pAux.prev = nodo
-        * ( void** )pFirst = * ( void** )nodo;//pFirst = nodo
+    // while( *( int * )pBuffer < 0 && * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) != NULL ){
+    //     printf ("\nONDE EStá auxiliar: %s\n", (* ( (char **)( pBuffer + 116 ))) );
+    //     * ( void** )( pBuffer + 116 ) = * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ); //pAu = pAux.prev
+    //     *( int * )pBuffer = strcmp (  ( * (  ( char** )nodo ) ),  ( * (  ( char ** )( pBuffer + 116 ) ) ) ); 
+    // }//while
+    while( strcmp((*(char**)nodo), (*(char**)pAux)) < 0 && *(void**)((*(char**)pAux) + 87)!= NULL ){
+        printf ("\nONDE EStá auxiliar: %s\n", *(char**)pAux);
+        *pAux = *(void**)((*(char**)pAux) + 87);
+    
+    }
+    // if(*( int * )pBuffer < 0){
+    //     * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) = * ( void** )( pBuffer + 116 );//nodo.next = pAux
+    //     * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 87 ) = * ( void** )nodo;//pAux.prev = nodo
+    //     * ( void** )pFirst = * ( void** )nodo;//pFirst = nodo
+    //     printf("Bruno vem antes de antonio ?????????????????????????????????????????????????\n");
+    //     return;
+    // } else if ( * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) == NULL ) {//inserir no final
+    //     * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) = * ( void** )nodo;//pAux.next = nodo
+    //     * ( void** ) (  ( * ( char** )nodo ) + 87 ) = * ( void** )( pBuffer + 116 );//nodo.prev = pAux
+    //     * ( void** )pLast = * ( void** )nodo; //pLast = nodo
+    //     printf("Bruno vem dpeois de carlos ?????????????????????????????????????????????????\n");
+    //     return;
+    // } else { //inserir no meio
+    //     * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) = * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 );//nodo.next = pAux.next
+    //     * ( void** ) (  ( * ( char** )nodo ) + 87 ) = * ( void** )( pBuffer + 116 );//nodo.prev = pAux
+    //     * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) = * ( void** )nodo;//pAux.next = nodo
+    //     * ( void** ) (  ( * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) ) + 87 ) = * ( void** )nodo;//nodo.next->prev = nodo
+    //     printf("N sei alocar no meio :(((((((((\n");
+    //     return;
+    // }//if
+    if (strcmp((*(char**)nodo), (*(char**)pAux)) < 0){
+        *(void**)((*(char**)nodo) + 79) = *pAux;
+        *(void**)((*(char**)pAux) + 87) = *nodo;
+        *pFirst = *nodo;
         printf("Bruno vem antes de antonio ?????????????????????????????????????????????????\n");
         return;
-    } else if ( * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) == NULL ) {//inserir no final
-        * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) = * ( void** )nodo;//pAux.next = nodo
-        * ( void** ) (  ( * ( char** )nodo ) + 87 ) = * ( void** )( pBuffer + 116 );//nodo.prev = pAux
-        * ( void** )pLast = * ( void** )nodo; //pLast = nodo
-        printf("Bruno vem dpeois de carlos ?????????????????????????????????????????????????\n");
+    } else if (*(void**)((*(char**)pAux) + 79) == NULL){
+        *(void**)((*(char**)pAux) + 79) = *nodo;
+        *(void**)((*(char**)nodo) + 87) = *pAux;
+        *pLast = *nodo;
         return;
-    } else { //inserir no meio
-        * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) = * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 );//nodo.next = pAux.next
-        * ( void** ) (  ( * ( char** )nodo ) + 87 ) = * ( void** )( pBuffer + 116 );//nodo.prev = pAux
-        * ( void** ) (  ( * (  ( char** )( pBuffer + 116 ) ) ) + 79 ) = * ( void** )nodo;//pAux.next = nodo
-        * ( void** ) (  ( * ( void** ) (  ( * (  ( char** )nodo ) ) + 79 ) ) + 87 ) = * ( void** )nodo;//nodo.next->prev = nodo
-        printf("N sei alocar no meio :(((((((((\n");
+    } else {
+        *(void**)((*(char**)nodo) + 79) = *(void**)((*(char**)pAux) + 79);
+        *(void**)((*(char**)nodo) + 87) = *pAux;
+        *(void**)((*(char**)pAux) + 79) = *nodo;
+        *(void **)(*(void**)((*(char**)nodo) + 79) + 87)= *nodo;
         return;
-    }//if
+    }//if 
 
     
     return;
@@ -284,13 +350,22 @@ void Push ( void* nodo, void* pLast, void* pFirst ){
 
 
 
-void CriaNodo ( void *nome, void *email, void *idade){
-    * (  ( void** ) ( pBuffer + 92 ) ) = calloc ( 1, MAX_NOME + MAX_MAIL + sizeof (unsigned short int) + sizeof (void *) + sizeof (void *) );
-    strcpy ( * (  ( char** ) ( pBuffer + 92 ) ),nome );
-    strcpy ( * (  ( char** ) ( pBuffer + 92 ) ) + 51, email );
-    * ( unsigned short int * ) (  * (   (  char**  ) (  pBuffer + 92  )  ) + 77  ) = * (  ( unsigned short int * )idade ); //Acessar o nodo como uma string, somar os bytes que preciso e aí sim dar o cast
-    * ( void** ) ( * (  ( char ** ) ( pBuffer + 92 ) ) + 79 ) = NULL;//pNext
-    * ( void** ) ( * (  ( char ** ) ( pBuffer + 92 ) ) + 87 ) = NULL;//pPrevious
+void CriaNodo ( char *nome, char *email, unsigned short int *idade){
+
+    void **nodo = pBuffer + sizeof(int) * 2 + sizeof(void*) * 2; 
+
+    *nodo = calloc(1, MAX_NOME + MAX_MAIL + sizeof(unsigned short int ) + sizeof(void*) + sizeof(void*));
+    //* (  ( void** ) ( pBuffer + 92 ) ) = calloc ( 1, MAX_NOME + MAX_MAIL + sizeof (unsigned short int) + sizeof (void *) + sizeof (void *) );
+    strcpy (*((char **)(nodo)) , nome);
+    //strcpy ( * (  ( char** ) ( pBuffer + 92 ) ),nome );
+    strcpy ( * (  ( char** ) ( nodo ) ) + 51, email );
+
+    *(unsigned short int*)(*((char **)(nodo)) + 77) = *idade;
+    //* ( unsigned short int * ) (  * (   (  char**  ) (  pBuffer + 92  )  ) + 77  ) = * (  ( unsigned short int * )idade ); //Acessar o nodo como uma string, somar os bytes que preciso e aí sim dar o cast
+    *(void**)(*((char **)(nodo)) + 79) = NULL;
+    *(void**)(*((char **)(nodo)) + 87) = NULL;
+    // * ( void** ) ( * (  ( char ** ) ( pBuffer + 92 ) ) + 79 ) = NULL;//pNext
+    // * ( void** ) ( * (  ( char ** ) ( pBuffer + 92 ) ) + 87 ) = NULL;//pPrevious
     return;
 }
 
@@ -299,23 +374,23 @@ void CriaNodo ( void *nome, void *email, void *idade){
 
 void LeString ( char *string ){
 
-    if ( string ==  ( pBuffer + sizeof ( int ) * 2 ) ){ //testa se a string passada é nome
-        pBuffer = realloc (pBuffer, sizeof ( int ) + sizeof ( int ) + MAX_NOME + MAX_MAIL + sizeof ( int ) + sizeof ( int ) + sizeof ( char ) + sizeof ( int )); //alocando para o contador do loop, para getchar() e para o tamanho
-        string = ( pBuffer + sizeof ( int ) * 2 );
+    if ( string ==  ( pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) ) ){ //testa se a string passada é nome
+        pBuffer = realloc (pBuffer, sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL + sizeof ( unsigned short int ) + sizeof ( int ) + sizeof ( char ) + sizeof ( int )); //alocando para o contador do loop, para getchar() e para o tamanho
+        string = ( pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) );
     } else {
-        pBuffer = realloc (pBuffer, sizeof ( int ) + sizeof ( int ) + MAX_NOME + MAX_MAIL + sizeof ( int ) + sizeof ( int ) + sizeof ( char ) + sizeof ( int )); //alocando para o contador do loop, para getchar() e para o tamanho
-        string = ( pBuffer + sizeof ( int ) * 2  + MAX_NOME);
+        pBuffer = realloc (pBuffer, sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL + sizeof ( unsigned short int ) + sizeof ( int ) + sizeof ( char ) + sizeof ( int )); //alocando para o contador do loop, para getchar() e para o tamanho
+        string = ( pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME);
     }
 
-    int *i = pBuffer + sizeof ( int ) * 2 + MAX_NOME + MAX_MAIL + sizeof ( int );//alocando i depois de `idade`;
+    int *i = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL + sizeof ( unsigned short int ) ;//alocando i depois de `idade`;
     *i = 0;
 
-    char *c = pBuffer + sizeof ( int ) * 2 + MAX_NOME + MAX_MAIL + sizeof ( int ) + sizeof ( int ); //alocando c depois de `i`
+    char *c = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL + sizeof ( unsigned short int ) + sizeof ( int ); //alocando c depois de `i`
     *c = getchar ( );
 
-    int *tamanho = pBuffer + sizeof ( int ) * 2 + MAX_NOME + MAX_MAIL + sizeof ( int ) + sizeof ( int ) + sizeof ( char );
+    int *tamanho = pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) + MAX_NOME + MAX_MAIL + sizeof ( unsigned short int ) + sizeof ( int ) + sizeof ( char );
 
-    if ( string ==  ( pBuffer + sizeof ( int ) * 2 ) ){ //verifica se a string passada é nome ou email
+    if ( string ==  ( pBuffer + sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) ) ){ //verifica se a string passada é nome ou email
         *tamanho = MAX_NOME;
     } else {
         *tamanho = MAX_MAIL;
@@ -329,17 +404,17 @@ void LeString ( char *string ){
 
     }//while
     * ( string + *i ) = '\0';
-    pBuffer = realloc(pBuffer, sizeof ( int ) + sizeof ( int ) + MAX_NOME + MAX_MAIL + sizeof ( int ) );
+    pBuffer = realloc(pBuffer, sizeof ( int ) * 2 + sizeof (void *) * 2 + sizeof (void *) + sizeof(void *) +  MAX_NOME + MAX_MAIL + sizeof ( unsigned short int ) );
     return;
 }
 
-void AlocaBuffer ( ){
-    pBuffer = calloc ( 150, sizeof ( char ) );
-    * ( char** ) ( pBuffer + 100 ) = NULL;
-    * ( char** ) ( pBuffer + 108 ) = NULL;
-    *(void**)(pBuffer + 124) = NULL;
-    *(void**)(pBuffer + 132) = NULL;
-    (*((int*)(pBuffer + 8))) = 0;
-    //Apontar os outros ponteiros para NULL
-    return;
-}
+// void AlocaBuffer ( ){
+//     pBuffer = calloc ( 150, sizeof ( char ) );
+//     * ( char** ) ( pBuffer + 100 ) = NULL;
+//     * ( char** ) ( pBuffer + 108 ) = NULL;
+//     *(void**)(pBuffer + 124) = NULL;
+//     *(void**)(pBuffer + 132) = NULL;
+//     (*((int*)(pBuffer + 8))) = 0;
+//     //Apontar os outros ponteiros para NULL
+//     return;
+// }
