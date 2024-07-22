@@ -203,7 +203,8 @@ void BuscaPessoa ( ){
             printf( "Email: %s\n", ( * ( char ** )nodo ) + MAX_NOME );
             printf( "Idade: %hd\n", * ( unsigned short int * )( ( *nodo ) + MAX_NOME + MAX_MAIL  ) );
             printf( "######\n" );
-            Pop( pFirst, nodo );
+	    Push( nodo, pAux, pFirstTemp, pLastTemp );
+            Pop( pFirst, nodo);
         } else {
             Push (  nodo, pAux, pFirstTemp, pLastTemp );
             Pop ( pFirst, nodo );
