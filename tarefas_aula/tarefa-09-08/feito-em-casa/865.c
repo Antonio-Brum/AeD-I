@@ -9,6 +9,31 @@
     //saber a profundida atual para comparar com a maior profundidade. Quando for encontrada a maior profundidade salvar o caminho mais curto até ela. Se houver mais de 1 nodo com a mesma maior profundidade, comparar os caminhos. Achar o primeiro elemento que difere um de outro e o anterior elemento anterior será a menor árvore.
     //Se houver apenas 1 nodo mais profundo ele retornará ele mesmo
 
+
+struct NodeTree *CompareSubTrees(struct NodeTree *** subTree, int greatestDepth, int subTreeCounter){
+    int i;
+    if (subTree == NULL){
+        return subTree;
+    }
+    if (subTreeCounter == 1){
+        return subTree[0][greatestDepth];
+    }
+    if (subTreeCounter == 2){
+        for(i = 0; i<=greatestDepth; i++){
+            if (subTree[0][i] != subTree[1][i]){
+                break;
+            }
+        }
+        return subTree[0][i-1];
+    }
+    for(i = 0; i<=greatestDepth;i++){
+        if(subTree[0][i] != subTree[subTreeCounter-1][i]){
+            break;
+        }
+    }
+    return subTree[0][i-1];
+}
+
 void InOrder (struct TreeNode* node, int *depthNow, int *greatestDepth, struct TreeNode **path, struct TreeNode ****subtree, int *subTreeCounter){
     if (node == NULL){
         return;
@@ -58,7 +83,8 @@ struct TreeNode* subtreeWithAllDeepest(struct TreeNode* root) {
 
     InOrder(root, &depthNow, &greatestDepth, path, &subTree, &subTreeCounter);
 
-    struct TreeNode* result = subTree[0][0];
+
+    struct TreeNode* result = CompareSubTrees(subTree, greatestDepth, subTreeCounter);
 
     for (int i = 0; i < subTreeCounter; i++) {
         free(subTree[i]);
