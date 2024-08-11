@@ -30,3 +30,10 @@ Ainda assim não consegui avançar muito em tempo da aula pois, seguindo a lógi
 ### Feito em casa
 Em casa tive tempo para debuggar o programa, acertar os ponteiros e concluir a lógica.\
 Passou em todos os testes do leetcode (mas passou longe de performar bem).
+
+## Análise de complexidade
+* Complexidade em tempo: O(n*h).\
+      - No pior caso, toda vez que o programa encontrar uma folha, esta folha seja tão profunda quanto a anterior. Como o caminho é copiado para um novo espaço de memória, item por item, o algorítmo seria de O(n*h), onde 'n' é o número de nodos e 'h' é a altura do caminho que será copiado.
+  
+* Complexidade em espaço: O(n).
+    - No pior caso será preciso armazenar vários caminhos. Ocupará o espaço para os nodos da árvore, para os vetores de ponteiros que representam as subárvores que contém os nodos mais profundos e mais um espaço de tamanho fixo de alocado para `path`.   
