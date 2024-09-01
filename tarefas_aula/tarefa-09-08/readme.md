@@ -15,7 +15,7 @@ Traduzindo: É preciso descobrir os nodos mais profundos e, então, retornar a m
 
 ## Testes
 
-Os três primeiros testes do github servem para dar uma noção geral de como o código deve se comportar. Os casos são:
+Os três primeiros testes do leetcode servem para dar uma noção geral de como o código deve se comportar. Os casos são:
 1. `input: [3,5,1,6,2,0,8,null,null,7,4]` -- `expected: [2,7,4]` -- `output: [2,7,4]`
 2. `input: [1]` -- `expected: [1]` -- `output: [1]`
 3. `input: [0,1,3,null,2]` -- `expected: [2]` -- `output: [2]`
